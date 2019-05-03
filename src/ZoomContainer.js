@@ -86,6 +86,7 @@ export default class ZoomContainer {
    * Set the option use3dTransform
    */
   setUse3dTransform (use3dTransform) {
+    if (!use3dTransform) this._clear3d()
     this._use3dTransform = use3dTransform
   }
 
@@ -320,7 +321,7 @@ export default class ZoomContainer {
       // var start = new Date().getTime()
 
       // reset the 3d transform
-      this._clear3d()
+      if (this._use3dTransform) this._clear3d()
 
       // redraw the svg
       this.zoomedSel
