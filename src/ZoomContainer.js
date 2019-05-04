@@ -64,6 +64,7 @@ export default class ZoomContainer {
     this._zoomTimeout = null
     this._svgScale = this.windowScale
     this._svgTranslate = this.windowTranslate
+    this._requestedFrame = false
     // this._lastSvgMs = null
 
     // set up the callbacks
@@ -256,32 +257,9 @@ export default class ZoomContainer {
    */
   _goToCallback (scale, translate) {
     // if the scale changes, run the zoom_change callback
-    if (this.windowScale !== scale) {
-      this.windowScale = scale
-      this.callbackManager.run('zoom_change')
-    }
+    this.windowScale = scale
     this.windowTranslate = translate
-
-    if (this._use3dTransform) { // 3d transform
-      // cancel all timeouts
-      if (!_.isNull(this._zoomTimeout)) {
-        clearTimeout(this._zoomTimeout)
-      }
-
-      // set the 3d transform
-      this._goTo3d(scale, translate, this._svgScale, this._svgTranslate)
-
-      // if another goTo does not happen within the delay time, then
-      // redraw the svg
-      this._zoomTimeout = _.delay(() => {
-        // redraw the svg
-        this._goToSvg(scale, translate)
-      }, 100) // between 100 and 600 seems to be usable
-    } else { // no 3d transform
-      this._goToSvg(scale, translate)
-    }
-
-    this.callbackManager.run('goTo')
+    this._goToSvg(scale, translate)
   }
 
   /**
@@ -306,6 +284,21 @@ export default class ZoomContainer {
     this.css3TransformContainer.style('-webkit-transform-origin', null)
   }
 
+  _goToSvgFrame () {
+    if (!this._requestedFrame) {
+      this._requestedFrame = true
+      requestAnimationFrame(() => {
+        this._requestedFrame = false
+        const scale = this._svgScale
+        const translate = this._svgTranslate
+        this.zoomedSel
+          .attr('transform',
+                'translate(' + translate.x + ',' + translate.y + ') ' +
+                'scale(' + scale + ')')
+      })
+    }
+  }
+
   /**
    * Zoom & pan the svg element. Also runs the svg_start and svg_finish callbacks.
    * @param {Number} scale - The scale, between 0 and 1.
@@ -313,39 +306,11 @@ export default class ZoomContainer {
    * @param {Function} callback - (optional) A callback to run after scaling.
    */
   _goToSvg (scale, translate, callback) {
-    this.callbackManager.run('svg_start')
-
-    // defer to update callbacks
-    _.defer(() => {
-      // start time
-      // var start = new Date().getTime()
-
-      // reset the 3d transform
-      if (this._use3dTransform) this._clear3d()
-
-      // redraw the svg
-      this.zoomedSel
-        .attr('transform',
-              'translate(' + translate.x + ',' + translate.y + ') ' +
-              'scale(' + scale + ')')
-      // save svg location
-      this._svgScale = scale
-      this._svgTranslate = translate
-
-      _.defer(() => {
-        // defer for callback after draw
-        this.callbackManager.run('svg_finish')
-
-        if (!_.isUndefined(callback)) callback()
-
-        // wait a few ms to get a reliable end time
-        // _.delay(function () {
-        //     // end time
-        //     var t = new Date().getTime() - start
-        //     this._lastSvgMs = t
-        // }.bind(this), 20)
-      })
-    })
+    // redraw the svg
+    // save svg location
+    this._svgScale = scale
+    this._svgTranslate = translate
+    this._goToSvgFrame()
   }
 
   /**
