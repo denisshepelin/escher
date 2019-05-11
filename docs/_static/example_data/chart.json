@@ -1,0 +1,20 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v3.json",
+  "data": {"values":[
+    {"flux":100.0, "BiGG_ID" : "GAPD"},
+    {"flux":80.0, "BiGG_ID" : "GAPD"},
+    {"flux":60.0, "BiGG_ID" : "GAPD"},
+    {"flux":105.0, "BiGG_ID" : "FRUK"},
+    {"flux":85.0, "BiGG_ID" : "FRUK"},
+    {"flux":65.0, "BiGG_ID" : "FRUK"},
+    {"flux":95.0, "BiGG_ID" : "FBA"},
+    {"flux":75.0, "BiGG_ID" : "FBA"},
+    {"flux":55.0, "BiGG_ID" : "FBA"}
+  ]},
+  "mark": "circle",
+  "encoding": {
+    "y": {"field": "flux", "type": "nominal"},
+    "x": {"field": "BiGG_ID", "type": "ordinal"},
+    "color": {"field": "BiGG_ID", "type": "nominal"}
+  }
+}

@@ -49,6 +49,7 @@
     "raw-loader": "^0.5.1",
     "standard": "^10.0.3",
     "style-loader": "^0.18.2",
+    "terser-webpack-plugin": "^1.2.3",
     "url-loader": "^0.6.2",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.7.1",
@@ -69,7 +70,10 @@
     "mousetrap": "^1.5.3",
     "preact": "^8.2.1",
     "underscore": "^1.8.3",
-    "vkbeautify": "^0.99.1"
+    "vkbeautify": "^0.99.1",
+    "vega": "5.3.5",
+    "vega-lite": "3.2.1",
+    "vega-embed": "4.0.0"
   },
   "scripts": {
     "build": "./node_modules/.bin/webpack --config webpack.prod.js",
