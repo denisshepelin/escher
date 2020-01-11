@@ -1,10 +1,10 @@
-[![PyPi](https://img.shields.io/pypi/v/Escher.svg)](https://pypi.python.org/pypi/Escher)
+[![PyPi](https://img.shields.io/pypi/v/escher.svg)](https://pypi.python.org/pypi/Escher)
 [![NPM](https://img.shields.io/npm/v/escher.svg)](https://www.npmjs.com/package/escher)
-[![Gitter.im](https://img.shields.io/gitter/room/zakandrewking/escher.svg)](https://gitter.im/zakandrewking/escher)
-[![MIT](https://img.shields.io/pypi/l/Escher.svg)](https://github.com/zakandrewking/escher/blob/master/LICENSE)
+[![Gitter.im](https://img.shields.io/gitter/room/zakandrewking/gitter.svg?color=orange)](https://gitter.im/zakandrewking/escher)
 [![Documentation Status](https://readthedocs.org/projects/escher/badge/?version=latest)](https://escher.readthedocs.io/en/latest/?badge=latest)
 [![Travis](https://img.shields.io/travis/zakandrewking/escher/master.svg)](https://travis-ci.org/zakandrewking/escher)
 [![Coverage Status](https://img.shields.io/coveralls/zakandrewking/escher/master.svg)](https://coveralls.io/github/zakandrewking/escher?branch=master)
+[![MIT](https://img.shields.io/pypi/l/escher.svg?color=blueviolet)](https://github.com/zakandrewking/escher/blob/master/LICENSE)
 
 # Escher
 
@@ -89,28 +89,27 @@ pip install escher
 
 ## Jupyter extensions
 
-To install the Jupyter lab extension, simply install Escher with pip then
+When you `pip install escher`, the Jupyter notebook extension should be
+installed automatically. If that doesn't work, try:
+
+```bash
+# The notebook extenstion should install automatically. You can check by running:
+jupyter nbextension list
+# Make sure you have version >=5 of the `notebook` package
+pip install "notebook>=5"
+# To manually install the extension
+jupyter nbextension install --py escher
+jupyter nbextension enable --py escher
+# depending on you environment, you might need the `--sysprefix` flag with those commands
+```
+
+To install the Jupyter lab extension, simply install Escher with `pip install escher` then
 install the extension:
 
 ```bash
-pip install escher
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
 jupyter labextension install escher
 ```
-
-To install the Jupyter notebook extension, run the following:
-
-```bash
-pip install escher
-# you'll need version >=5 of the `notebook` package
-pip install "notebook>=5"
-jupyter nbextension install --py escher
-jupyter nbextension enable --py escher
-```
-
-Note: depending on you environment, you might want to add the `--sysprefix` flag
-to the nbextension commands. You might also need to use `sudo` to get around
-permissions issues.
 
 ## Python/Jupyter Development
 
@@ -138,8 +137,7 @@ pytest
 ```
 
 To develop the Jupyter notebook and Jupyter Lab extensions, you will need
-install them with symlinks (the typical installation is describe in the
-[docs](https://escher.readthedocs.io/en/latest/escher-python.html)).
+install them with symlinks.
 
 First, install the Python package for development as described above.
 
@@ -147,12 +145,15 @@ For the Jupyter notebooks, run:
 
 ```
 cd py
-jupyter nbextension install --py --symlink --sys-prefix escher
-jupyter nbextension enable --py --sys-prefix escher
+jupyter nbextension install --py --symlink escher
+jupyter nbextension enable --py escher
 ```
 
-When you make changes, you will need to `yarn copy` and refresh notebook browser
-tab.
+If you are using virtualenv or conda, you can add the `--sys-prefix` flag to
+those commands to keep your environment isolated and reproducible.
+
+When you make changes, you will need to `yarn build && yarn copy` and refresh
+notebook browser tab.
 
 For Jupyter Lab, run (in the root directory):
 
@@ -172,7 +173,7 @@ Build and run the docs::
 
 ```
 cd docs
-make html
+./build_docs
 cd _build/html
 python -m SimpleHTTPServer # python 2
 python -m http.server # python 3

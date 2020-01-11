@@ -1,15 +1,7 @@
 import sys
-from sys import argv
-from subprocess import call
-import threading
-import webbrowser
-import os
-from shutil import copy, move, rmtree
-from os.path import join, dirname, realpath, exists
-from glob import glob
-import re
+from os.path import join, dirname, realpath
 
-from setuptools import setup, find_packages, Command
+from setuptools import setup, find_packages
 
 directory = dirname(realpath(__file__))
 sys.path.insert(0, join(directory, 'escher'))
@@ -32,6 +24,7 @@ setup(
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Visualization',
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Operating System :: OS Independent'
@@ -40,7 +33,7 @@ setup(
     include_package_data=True,
     data_files=[
         (
-            'share/jupyter/nbextensions/jupyter-escher',
+            'share/jupyter/nbextensions/escher',
             [
                 'escher/static/extension.js',
                 'escher/static/escher.min.js',
@@ -49,18 +42,22 @@ setup(
         ),
         (
             'etc/jupyter/nbconfig/notebook.d',
-            ['jupyter-escher.json'],
+            ['escher.json'],
         )
     ],
     install_requires=[
         'Jinja2>=2.7.3,<3',
         'pytest>=4.0.1,<5',
         'cobra>=0.5.0',
-        'jsonschema>=2.4.0,<3',
-        'ipywidgets>=7.1.0,<8',
+        'jsonschema>=3.0.1,<4',
+        'ipywidgets>=7.4.0,<8',
         'pandas>=0.18'
     ],
     extras_require={
-        'docs': ['sphinx>=1.2', 'sphinx-rtd-theme>=0.1.6'],
+        'docs': [
+            'sphinx>=2.1.1,<3',
+            'sphinx-rtd-theme>=0.4.3,<0.5',
+            'nbsphinx>=0.4.2,<0.5'
+        ],
     },
 )

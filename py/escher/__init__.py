@@ -1,3 +1,7 @@
+# global config
+rc = {}
+
+
 from escher.version import (
     __version__,
     __schema_version__,
@@ -15,6 +19,6 @@ def _jupyter_nbextension_paths():
     return [{
         'section': 'notebook',
         'src': 'static',
-        'dest': 'jupyter-escher',
-        'require': 'jupyter-escher/extension'
+        'dest': 'escher',
+        'require': 'escher/extension'
     }]

@@ -1,12 +1,13 @@
 from escher.urls import get_url, root_directory
 from escher.util import b64dump
 from escher.version import __version__
+from escher import rc
 
 import cobra
 from cobra import Model
 import pandas as pd
 import ipywidgets as widgets
-from traitlets import Unicode, Int, Instance, Any, observe, validate
+from traitlets import Unicode, Int, Instance, Any, observe, validate, default
 import os
 from os.path import join, isfile, expanduser
 from warnings import warn
@@ -67,7 +68,8 @@ def _json_for_name(name: str, kind: str):
         raise Exception('Could not connect to the Escher server')
     match = match_in_index(name, server_index(), kind)
     if len(match) == 0:
-        raise Exception(f'Could not find the {kind} {name} on the server')
+        raise Exception('Could not find the {kind} {name} on the server'
+                        .format(kind=kind, name=name))
     org, name = match[0]
     url = (
         get_url(kind + '_download') +
@@ -287,8 +289,8 @@ class Builder(widgets.DOMWidget):
 
     _view_name = Unicode('EscherMapView').tag(sync=True)
     _model_name = Unicode('EscherMapModel').tag(sync=True)
-    _view_module = Unicode('jupyter-escher').tag(sync=True)
-    _model_module = Unicode('jupyter-escher').tag(sync=True)
+    _view_module = Unicode('escher').tag(sync=True)
+    _model_module = Unicode('escher').tag(sync=True)
     _view_module_version = Unicode(__version__).tag(sync=True)
     _model_module_version = Unicode(__version__).tag(sync=True)
 
@@ -407,8 +409,14 @@ class Builder(widgets.DOMWidget):
         .tag(sync=True, option=True)
     starting_reaction = Any(None, allow_none=True)\
         .tag(sync=True, option=True)
-    never_ask_before_quit = Any(None, allow_none=True)\
-        .tag(sync=True, option=True)
+
+    # This option can be set globally with escher.rc['never_ask_before_quit']
+    never_ask_before_quit = Any(allow_none=True).tag(sync=True, option=True)
+
+    @default('never_ask_before_quit')
+    def _never_ask_before_quit(self):
+        return rc.get('never_ask_before_quit', None)
+
     primary_metabolite_radius = Any(None, allow_none=True)\
         .tag(sync=True, option=True)
     secondary_metabolite_radius = Any(None, allow_none=True)\
@@ -519,7 +527,7 @@ class Builder(widgets.DOMWidget):
             model: Model = None,
             model_name: str = None,
             model_json: str = None,
-            **kwargs,
+            **kwargs
     ) -> None:
         # kwargs will instantiate the traitlets
         super().__init__(**kwargs)
@@ -597,12 +605,7 @@ class Builder(widgets.DOMWidget):
 
             The name of the HTML file.
 
-        TODO apply options from self
-
         """
-
-        #     options = transform(self.options)
-        # get options
         options = {}
         for key in self.traits(option=True):
             val = getattr(self, key)

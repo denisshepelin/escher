@@ -3,40 +3,52 @@
 import { default as Builder } from './Builder'
 import { select as d3Select } from 'd3-selection'
 import _ from 'underscore'
+
+// These will be conditionally defined below
+export let EscherMapView = null
+export let EscherMapModel = null
+
 // @jupyter-widgets/base is optional, so only initialize if it's called
 let base
 try {
   base = require('@jupyter-widgets/base')
 } catch (e) {
 }
+if (base) {
+  const version = ESCHER_VERSION
 
-const version = ESCHER_VERSION
+  // These options can be set without explicitly redrawing the map. List is
+  // probably not complete.
+  const NO_DRAW_OPTIONS = [
+    'menu',
+    'scroll_behavior',
+    'use_3d_transform',
+    'enable_editing',
+    'enable_keys',
+    'full_screen_button',
+    // these already redraw
+    'reaction_data',
+    'metabolite_data',
+    'gene_data'
+  ]
 
-// These options can be set without explicitly redrawing the map. List is
-// probably not complete.
-const NO_DRAW_OPTIONS = [
-  'menu',
-  'scroll_behavior',
-  'use_3d_transform',
-  'enable_editing',
-  'enable_keys',
-  'full_screen_button',
-  'reaction_data',
-  'metabolite_data',
-  'gene_data'
-]
-
-/**
- * Jupyter widget implementation for the Escher Builder.
- */
-export default function initializeJupyterWidget () {
-  if (!base) {
-    throw Error('@jupyter-widgets/base not installed. You must install it to ' +
-                'use the jupyter widget')
+  const WITH_API_FUNCTIONS = {
+    reaction_data: 'set_reaction_data',
+    metabolite_data: 'set_metabolite_data',
+    gene_data: 'set_gene_data'
   }
 
-  class EscherMapView extends base.DOMWidgetView {
+  /**
+   * Jupyter widget implementation for the Escher Builder.
+   */
+  // eslint-disable-next-line no-unused-vars
+  class EscherMapViewRef extends base.DOMWidgetView {
     render () {
+      if (!base) {
+        throw Error('@jupyter-widgets/base not installed. You must install it to ' +
+                    'use the jupyter widget')
+      }
+
       const sel = d3Select(this.el).append('div')
 
       // set height before loading map
@@ -73,19 +85,34 @@ export default function initializeJupyterWidget () {
                 builder.load_model(this.getModelData())
               })
 
-              // set the rest of the options
-              Object.keys(builder.settings.streams).map(key => {
+              // sync changes from options (only after they have been accepted)
+              _.mapObject(builder.settings.acceptedStreams, (stream, key) => {
                 if (this.model.keys().includes(key)) {
                   const val = this.model.get(key)
-                  // ignore null because that means to use the default
-                  if (val !== null) builder.settings.set(key, val)
+                  if (val !== null) {
+                    // if set, use the value from Python
+                    if (key in WITH_API_FUNCTIONS) {
+                      builder[WITH_API_FUNCTIONS[key]](val)
+                    } else {
+                      builder.settings.set(key, val)
+                    }
+                  } else {
+                    // otherwise use the default from JavaScript
+                    this.model.set(key, builder.settings.get(key))
+                    this.model.save_changes()
+                  }
 
                   // reactive updates
                   this.model.on(`change:${key}`, () => {
                     const val = this.model.get(key)
-                    // ignore null because that means to use the default
-                    if (val !== null) {
-                      builder.settings.set(key, val)
+                    // stop if hasn't changed
+                    if (!_.isEqual(val, builder.settings.get(key))) {
+                      if (key in WITH_API_FUNCTIONS) {
+                        builder[WITH_API_FUNCTIONS[key]](val)
+                      } else {
+                        builder.settings.set(key, val)
+                      }
+
                       // default to drawing everything, unless it's a common
                       // option where that's not necessary
                       if (!NO_DRAW_OPTIONS.includes(key)) {
@@ -94,18 +121,18 @@ export default function initializeJupyterWidget () {
                     }
                   })
                 }
-              })
 
-              // get changes from options (only after they have been accepted)
-              _.mapObject(builder.settings.acceptedStreams, (stream, key) => {
                 stream.onValue(val => {
-                  // avoid a loop
-                  if (val !== this.model.get(key)) {
+                  // avoid a loop with a deep comparison
+                  if (!_.isEqual(val, this.model.get(key))) {
                     this.model.set(key, val)
                     this.model.save_changes()
                   }
                 })
               })
+
+              // draw again to get settings visualized
+              builder.map.draw_everything()
             }
           }
         )
@@ -127,18 +154,21 @@ export default function initializeJupyterWidget () {
     }
   }
 
-  class EscherMapModel extends base.DOMWidgetModel {
+  // eslint-disable-next-line no-unused-vars
+  class EscherMapModelRef extends base.DOMWidgetModel {
     defaults () {
       return _.extend(super.defaults(), {
         _model_name: 'EscherMapModel',
         _view_name: 'EscherMapView',
-        _model_module: 'jupyter-escher',
-        _view_module: 'jupyter-escher',
+        _model_module: 'escher',
+        _view_module: 'escher',
         _model_module_version: version,
         _view_module_version: version
       })
     }
   }
 
-  return { EscherMapView, EscherMapModel }
+  // Trick for conditional exports
+  EscherMapView = EscherMapViewRef
+  EscherMapModel = EscherMapModelRef
 }

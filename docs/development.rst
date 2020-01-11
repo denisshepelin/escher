@@ -15,8 +15,7 @@ Using the static JavaScript and CSS files
 =========================================
 
 You can include the compiled Escher JavaScript and CSS files in any HTML
-document. The only dependencies are `d3.js`_, and optionally `Twitter
-Bootstrap`_ if you are using the option ``menu='all'``.
+document.
 
 The compiled files are available from unpkg::
 
@@ -30,7 +29,7 @@ Source maps are also hosted there::
 
 If you want a particular version of escher, add a version tag like this::
 
-  https://unpkg.com/escher@1.7.0-beta.1/dist/escher.js
+  https://unpkg.com/escher@1.7.0-beta.19/dist/escher.js
 
 Or, if you use NPM, you can simply install `escher`::
 
@@ -43,6 +42,9 @@ Or with yarn::
 For an example of the boilerplate code that is required to begin developing with
 Escher, have a look at the `escher-demo repository`_. For projects built with
 npm, use the `escher-test repository`_ as a guide.
+
+You can also follow the :doc:`Developer Tutorial <developer-tutorial>` for an
+example of extending Escher to create custom tooltips.
 
 Import Escher
 =============
@@ -111,12 +113,28 @@ COBRA models are also saved as JSON files. This format has not been documented
 with a schema, but you can browse through the `core metabolism model`_ as a
 guide to generating valid COBRA models.
 
+Contributing to the Escher Source Code
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We welcome open source contributions to the Escher source code. You can find
+installation instructions for developing Escher in the README:
+
+https://github.com/zakandrewking/escher/blob/master/README.md
+
+And instructions (work in progress :):
+
+https://github.com/zakandrewking/escher/blob/master/CONTRIBUTING.md
+
+And our code of conduct:
+
+https://github.com/zakandrewking/escher/blob/master/CODE_OF_CONDUCT.md
+
 I still need help!
 ^^^^^^^^^^^^^^^^^^
 
-If you are interested in developing with Escher and you need more information
-than what is provided in the documentation, please contact Zachary King
-(zaking-AT-ucsd-DOT-edu).
+If you are interested in developing with or contributing to Escher and you need
+more information than what is provided in the documentation, please contact
+Zachary King <zaking@ucsd.edu>.
 
 .. _`Gitter chat room`: https://gitter.im/zakandrewking/escher
 .. _`Development roadmap`: https://github.com/zakandrewking/escher/wiki/Development-Roadmap
